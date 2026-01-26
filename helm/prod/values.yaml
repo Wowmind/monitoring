@@ -3,6 +3,7 @@ replicas: 2
 image:
   repository: prod
   tag: latest
+  digest: ""
 containerPort: 5002
 service:
   type: LoadBalancer
