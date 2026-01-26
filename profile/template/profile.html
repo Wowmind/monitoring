@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile Page</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+        }
+        .card {
+            background: white;
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+        h2 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>{{ user.name }}</h2>
+    <p><strong>Role:</strong> {{ user.role }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+
+    <strong>Skills:</strong>
+    <ul>
+        {% for skill in user.skills %}
+        <li>{{ skill }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+</body>
+</html>
