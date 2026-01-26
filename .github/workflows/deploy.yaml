@@ -36,7 +36,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           # Build with commit SHA
-          docker build -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG ./app
+          docker build -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG .
           
           # Also tag as latest
           docker tag $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPO:latest
