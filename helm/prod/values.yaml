@@ -1,7 +1,7 @@
 name: prod
 replicas: 2
 image:
-  repository: prod
+  repository: 182889640030.dkr.ecr.us-east-1.amazonaws.com/ludacris-repo
   tag: latest
   digest: ""
 containerPort: 5000
