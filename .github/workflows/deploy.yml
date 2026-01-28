@@ -36,7 +36,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG ./app
           docker tag $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPO:latest
           docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPO:latest
@@ -46,7 +46,3 @@ jobs:
           aws eks update-kubeconfig \
             --region $AWS_REGION \
             --name $EKS_CLUSTER
-
-          kubectl rollout restart deployment $DEPLOYMENT_NAME -n $K8S_NAMESPACE
-
-          kubectl rollout status deployment $DEPLOYMENT_NAME -n $K8S_NAMESPACE
