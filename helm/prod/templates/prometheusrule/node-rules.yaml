@@ -1,0 +1,54 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: node-alerts
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  groups:
+  - name: node-alerts
+    rules:
+    - alert: NodeDown
+      expr: up{job="node-exporter"} == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Node is down"
+        description: "Node {{ $labels.instance }} is not reachable"
+
+    - alert: NodeHighCPU
+      expr: |
+        100 - (
+          avg by (instance)(
+            rate(node_cpu_seconds_total{mode="idle"}[5m])
+          ) * 100
+        ) > 80
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage on node"
+
+    - alert: NodeHighMemory
+      expr: |
+        (1 - (
+          node_memory_MemAvailable_bytes
+          / node_memory_MemTotal_bytes
+        )) * 100 > 85
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage on node"
+
+    - alert: NodeDiskAlmostFull
+      expr: |
+        node_filesystem_avail_bytes
+        / node_filesystem_size_bytes < 0.15
+      for: 10m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Node disk almost full"
