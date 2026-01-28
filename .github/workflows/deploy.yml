@@ -46,3 +46,7 @@ jobs:
           aws eks update-kubeconfig \
             --region $AWS_REGION \
             --name $EKS_CLUSTER
+
+          kubectl rollout status deployment $DEPLOYMENT_NAME \
+            -n $K8S_NAMESPACE \
+            --timeout=120s
