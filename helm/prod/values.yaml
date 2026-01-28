@@ -4,11 +4,11 @@ image:
   repository: prod
   tag: latest
   digest: ""
-containerPort: 5002
+containerPort: 5000
 service:
   type: LoadBalancer
   port: 80
-  targetPort: 5002
+  targetPort: 5000
 resources: {
   limits: {
     cpu: 250m,
