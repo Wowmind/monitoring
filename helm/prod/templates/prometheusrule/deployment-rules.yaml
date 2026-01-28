@@ -16,7 +16,7 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: "Deployment {{ \"{{ $labels.deployment }}\" }} replicas mismatch"
+            summary: "Deployment {{ '{{ $labels.deployment }}' }} replicas mismatch"
             description: "Available replicas do not match desired count."
 
         - alert: DeploymentUnavailable
@@ -26,5 +26,5 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "Deployment {{ \"{{ $labels.deployment }}\" }} is unavailable"
+            summary: "Deployment {{ '{{ $labels.deployment }}' }} is unavailable"
             description: "No replicas are available for deployment."

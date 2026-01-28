@@ -13,8 +13,8 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "Node {{ \"{{ $labels.instance }}\" }} is down"
-            description: "Node {{ \"{{ $labels.instance }}\" }} has not been reachable for more than 2 minutes."
+            summary: "Node {{ '{{ $labels.instance }}' }} is down"
+            description: "Node {{ '{{ $labels.instance }}' }} has not been reachable for more than 2 minutes."
 
         - alert: NodeHighCPU
           expr: |
@@ -25,7 +25,7 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: "High CPU on {{ \"{{ $labels.instance }}\" }}"
+            summary: "High CPU on {{ '{{ $labels.instance }}' }}"
             description: "CPU usage is above 85% for 5 minutes."
 
         - alert: NodeHighMemory
@@ -39,7 +39,7 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: "High memory usage on {{ \"{{ $labels.instance }}\" }}"
+            summary: "High memory usage on {{ '{{ $labels.instance }}' }}"
             description: "Memory usage is above 90% for 5 minutes."
 
         - alert: NodeDiskAlmostFull
@@ -53,5 +53,5 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "Disk almost full on {{ \"{{ $labels.instance }}\" }}"
+            summary: "Disk almost full on {{ '{{ $labels.instance }}' }}"
             description: "Disk usage is above 85%."

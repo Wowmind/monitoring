@@ -24,9 +24,8 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "Pod {{ \"{{ $labels.pod }}\" }} not ready"
-            description: "Pod {{ \"{{ $labels.pod }}\" }} has been not ready for more than 3 minutes."
-
+            summary: "Pod {{`{{ $labels.pod }}`}} not ready"
+            description: "Pod {{`{{ $labels.pod }}`}} has been not ready for more than 3 minutes."
         - alert: PodImagePullBackOff
           expr: |
             kube_pod_container_status_waiting_reason{reason="ImagePullBackOff"} == 1
