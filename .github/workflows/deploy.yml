@@ -47,6 +47,9 @@ jobs:
             --region $AWS_REGION \
             --name $EKS_CLUSTER
 
-          kubectl rollout status deployment $DEPLOYMENT_NAME \
-            -n $K8S_NAMESPACE \
-            --timeout=120s
+      
+      - name: Update Helm values and deploy
+        run: |
+          sed -i "s/tag: latest/tag: $IMAGE_TAG/" ./chart/values.yaml
+          aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER
+          helm upgrade --install prod ./chart -n app
