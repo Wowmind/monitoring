@@ -24,3 +24,98 @@ hpa:
   minReplicas: 1
   maxReplicas: 5
   targetCPUUtilizationPercentage: 70
+
+  prometheusRules:
+  node:
+    enabled: true
+    alerts:
+      - name: NodeDown
+        expr: 'up{job="node-exporter"} == 0'
+        for: 2m
+        severity: critical
+        summary: 'Node {{ "{{ $labels.instance }}" }} is down'
+        description: 'Node {{ "{{ $labels.instance }}" }} has been unreachable for more than 2 minutes.'
+      - name: NodeHighCPU
+        expr: |
+          100 - (avg by (instance)(
+            rate(node_cpu_seconds_total{mode="idle"}[5m])
+          ) * 100) > 85
+        for: 5m
+        severity: warning
+        summary: 'High CPU on {{ "{{ $labels.instance }}" }}'
+        description: 'CPU usage is above 85% for 5 minutes.'
+      - name: NodeHighMemory
+        expr: |
+          (1 - (
+            node_memory_MemAvailable_bytes
+            / node_memory_MemTotal_bytes
+          )) * 100 > 90
+        for: 5m
+        severity: warning
+        summary: 'High memory usage on {{ "{{ $labels.instance }}" }}'
+        description: 'Memory usage is above 90% for 5 minutes.'
+      - name: NodeDiskAlmostFull
+        expr: |
+          (1 - (
+            node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"}
+            / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}
+          )) * 100 > 85
+        for: 10m
+        severity: critical
+        summary: 'Disk almost full on {{ "{{ $labels.instance }}" }}'
+        description: 'Disk usage is above 85%.'
+
+  pod:
+    enabled: true
+    alerts:
+      - name: PodCrashLooping
+        expr: 'increase(kube_pod_container_status_restarts_total[5m]) > 3'
+        for: 5m
+        severity: warning
+        summary: 'Pod {{ "{{ $labels.pod }}" }} is crash looping'
+        description: 'Container in pod {{ "{{ $labels.pod }}" }} restarted more than 3 times in 5 minutes.'
+      - name: PodNotReady
+        expr: 'kube_pod_status_ready{condition="false"} == 1'
+        for: 3m
+        severity: critical
+        summary: 'Pod {{ "{{ $labels.pod }}" }} not ready'
+        description: 'Pod {{ "{{ $labels.pod }}" }} has been not ready for more than 3 minutes.'
+      - name: PodImagePullBackOff
+        expr: 'kube_pod_container_status_waiting_reason{reason="ImagePullBackOff"} == 1'
+        for: 2m
+        severity: critical
+        summary: 'ImagePullBackOff on {{ "{{ $labels.pod }}" }}'
+        description: 'Container image cannot be pulled.'
+
+  deployment:
+    enabled: true
+    alerts:
+      - name: DeploymentReplicasMismatch
+        expr: |
+          kube_deployment_spec_replicas != kube_deployment_status_replicas_available
+        for: 5m
+        severity: warning
+        summary: 'Deployment {{ "{{ $labels.deployment }}" }} replicas mismatch'
+        description: 'Available replicas do not match desired count.'
+      - name: DeploymentUnavailable
+        expr: 'kube_deployment_status_replicas_available == 0'
+        for: 2m
+        severity: critical
+        summary: 'Deployment {{ "{{ $labels.deployment }}" }} is unavailable'
+        description: 'No replicas are available for deployment.'
+
+  monitoring:
+    enabled: true
+    alerts:
+      - name: PrometheusDown
+        expr: 'up{job="prometheus"} == 0'
+        for: 2m
+        severity: critical
+        summary: 'Prometheus is down'
+        description: 'Prometheus instance is not reachable.'
+      - name: AlertmanagerDown
+        expr: 'up{job="alertmanager"} == 0'
+        for: 2m
+        severity: critical
+        summary: 'Alertmanager is down'
+        description: 'Alertmanager instance is not reachable.'
