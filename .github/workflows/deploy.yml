@@ -9,6 +9,8 @@ env:
   AWS_REGION: us-east-1
   ECR_REPO: ludacris-repo
   EKS_CLUSTER: ludacris-cluster
+  K8S_NAMESPACE: app
+  DEPLOYMENT_NAME: prod
 
 jobs:
   deploy:
@@ -34,20 +36,17 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build with commit SHA
           docker build -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG ./app
-          
-          # Also tag as latest
           docker tag $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPO:latest
-          
-          # Push both tags
           docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPO:latest
-          
-          echo " Pushed image: $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG"
-          echo " Pushed image: $ECR_REGISTRY/$ECR_REPO:latest"
 
-      - name: Restart deployment (force pull latest)
+      - name: Deploy to EKS
         run: |
-          aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER
-        
+          aws eks update-kubeconfig \
+            --region $AWS_REGION \
+            --name $EKS_CLUSTER
+
+          kubectl rollout restart deployment $DEPLOYMENT_NAME -n $K8S_NAMESPACE
+
+          kubectl rollout status deployment $DEPLOYMENT_NAME -n $K8S_NAMESPACE
