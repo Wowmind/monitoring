@@ -53,4 +53,4 @@ jobs:
           cd helm/prod
           sed -i "s/tag: latest/tag: $IMAGE_TAG/" values.yaml
           aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER
-          helm upgrade --install prod ./chart -n app
+          helm upgrade --install prod . -n app 
