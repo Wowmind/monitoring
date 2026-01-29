@@ -14,8 +14,8 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: "Pod {{ \"{{ $labels.pod }}\" }} is crash looping"
-            description: "Container in pod {{ \"{{ $labels.pod }}\" }} restarted more than 3 times in 5 minutes."
+            summary: "Pod {{`{{ $labels.pod }}`}} is crash looping"
+            description: "Container in pod {{`{{ $labels.pod }}`}} restarted more than 3 times in 5 minutes."
 
         - alert: PodNotReady
           expr: |
@@ -33,5 +33,5 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "ImagePullBackOff on {{ \"{{ $labels.pod }}\" }}"
+            summary: "ImagePullBackOff on {{`{{ $labels.pod }}`}}"
             description: "Container image cannot be pulled."

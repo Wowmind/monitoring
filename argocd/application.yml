@@ -22,7 +22,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: monitoring-app-namespace2
+  name: monitoring-app-ns2
   namespace: argocd
 spec:
   project: default

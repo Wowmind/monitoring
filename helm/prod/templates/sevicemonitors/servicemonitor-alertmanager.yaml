@@ -8,10 +8,13 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: alertmanager
+      app.kubernetes.io/name: alertmanager
   namespaceSelector:
     matchNames:
       - monitoring
   endpoints:
     - port: web
+      path: /metrics
       interval: 30s
+      scrapeTimeout: 10s
+      honorLabels: true
