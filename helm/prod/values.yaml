@@ -119,3 +119,23 @@ hpa:
         severity: critical
         summary: "Alertmanager is down"
         description: "Alertmanager instance is not reachable."
+
+
+alertmanager:
+  enabled: true
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['alertname', 'namespace']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 3h
+      receiver: 'slack-notifications'
+    receivers:
+      - name: 'slack-notifications'
+        slack_configs:
+          - api_url: /etc/alertmanager/secrets/slack-api-url 
+            channel: '#alerts'                                     
+            send_resolved: true
+
