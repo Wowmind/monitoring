@@ -11,31 +11,11 @@ spec:
     path: helm/prod
   destination:
     server: https://kubernetes.default.svc
-    namespace: app
+    namespace: monitoring  
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: monitoring-app-ns2
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/Wowmind/monitoring
-    targetRevision: main
-    path: helm/prod
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: monitoring
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+

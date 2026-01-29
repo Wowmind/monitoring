@@ -12,6 +12,7 @@ spec:
   namespaceSelector:
     matchNames:
       - monitoring
+      - app
   endpoints:
     - port: http-metrics
       path: /metrics
