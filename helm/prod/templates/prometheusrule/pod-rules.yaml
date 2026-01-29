@@ -8,8 +8,7 @@ spec:
     - name: pod.rules
       rules:
         - alert: PodCrashLooping
-          expr: |
-            increase(kube_pod_container_status_restarts_total[5m]) > 3
+          expr: increase(kube_pod_container_status_restarts_total[5m]) > 3
           for: 5m
           labels:
             severity: warning
@@ -18,17 +17,16 @@ spec:
             description: "Container in pod {{`{{ $labels.pod }}`}} restarted more than 3 times in 5 minutes."
 
         - alert: PodNotReady
-          expr: |
-            kube_pod_status_ready{condition="false"} == 1
+          expr: kube_pod_status_ready{condition="false"} == 1
           for: 3m
           labels:
             severity: critical
           annotations:
             summary: "Pod {{`{{ $labels.pod }}`}} not ready"
             description: "Pod {{`{{ $labels.pod }}`}} has been not ready for more than 3 minutes."
+
         - alert: PodImagePullBackOff
-          expr: |
-            kube_pod_container_status_waiting_reason{reason="ImagePullBackOff"} == 1
+          expr: kube_pod_container_status_waiting_reason{reason="ImagePullBackOff"} == 1
           for: 2m
           labels:
             severity: critical
