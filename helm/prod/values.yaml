@@ -179,3 +179,46 @@ alertmanager:
                 *Severity:* {{ .CommonLabels.severity }}
                 *Impact:* {{ .CommonAnnotations.impact }}
                 *Action:* {{ .CommonAnnotations.action }}
+
+
+loki:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClassName: gp2 
+  config:
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 7d
+  service:
+    type: ClusterIP
+    port: 3100
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+promtail:
+  enabled: true
+  serviceAccount:
+    create: true
+    name: promtail
+  config:
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+    positions:
+      filename: /tmp/positions.yaml
+    scrape_configs:
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+
