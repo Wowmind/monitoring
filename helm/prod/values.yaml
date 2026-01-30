@@ -168,9 +168,11 @@ alertmanager:
     receivers:
       - name: slack-notifications
         slack_configs:
-          - slack-webhook-url: /etc/alertmanager/secrets/slack-api-url
-            channel: "#alerts"
+          - channel: "#alerts"
             send_resolved: true
+            slack_webhook_url:
+              name: alertmanager-slack      
+              key: slack-webhook-url        
             title: "{{ .CommonAnnotations.summary }}"
             text: |
               *Severity:* {{ .CommonLabels.severity }}
