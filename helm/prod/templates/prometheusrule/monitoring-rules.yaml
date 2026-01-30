@@ -1,26 +1,25 @@
+{{- if and .Values.prometheusRules.enabled .Values.monitoring.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: monitoring-alerts
+  name: {{ include "fullname" . }}-monitoring-alerts
   namespace: monitoring
+  labels:
+    release: prometheus
 spec:
   groups:
-    - name: monitoring.rules
-      rules:
-        - alert: PrometheusDown
-          expr: up{job="prometheus"} == 0
-          for: 2m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Prometheus is down"
-            description: "Prometheus instance is not reachable."
-
-        - alert: AlertmanagerDown
-          expr: up{job="alertmanager"} == 0
-          for: 2m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Alertmanager is down"
-            description: "Alertmanager instance is not reachable."
+  - name: monitoring.rules
+    rules:
+    {{- range .Values.monitoring.alerts }}
+      - alert: {{ .name }}
+        expr: {{ .expr | quote }}
+        for: {{ .for }}
+        labels:
+          severity: {{ .severity }}
+        annotations:
+          summary: {{ .summary | quote }}
+          description: {{ .description | quote }}
+          impact: {{ .impact | quote }}
+          action: {{ .action | quote }}
+    {{- end }}
+{{- end }}

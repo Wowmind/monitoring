@@ -4,6 +4,7 @@ metadata:
   name: {{ .Values.name }}
   labels:
     app: {{ .Values.name }}
+    job: {{ .Values.name }}
 spec:
   type: {{ .Values.service.type }}
   ports:

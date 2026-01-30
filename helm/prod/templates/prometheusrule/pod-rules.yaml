@@ -1,35 +1,25 @@
+{{- if and .Values.prometheusRules.enabled .Values.pod.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: pod-alerts
+  name: {{ include "fullname" . }}-pod-alerts
   namespace: monitoring
+  labels:
+    release: prometheus
 spec:
   groups:
-    - name: pod.rules
-      rules:
-        - alert: PodCrashLooping
-          expr: increase(kube_pod_container_status_restarts_total[5m]) > 3
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "Pod {{`{{ $labels.pod }}`}} is crash looping"
-            description: "Container in pod {{`{{ $labels.pod }}`}} restarted more than 3 times in 5 minutes."
-
-        - alert: PodNotReady
-          expr: kube_pod_status_ready{condition="false"} == 1
-          for: 3m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Pod {{`{{ $labels.pod }}`}} not ready"
-            description: "Pod {{`{{ $labels.pod }}`}} has been not ready for more than 3 minutes."
-
-        - alert: PodImagePullBackOff
-          expr: kube_pod_container_status_waiting_reason{reason="ImagePullBackOff"} == 1
-          for: 2m
-          labels:
-            severity: critical
-          annotations:
-            summary: "ImagePullBackOff on {{`{{ $labels.pod }}`}}"
-            description: "Container image cannot be pulled."
+  - name: pod.rules
+    rules:
+    {{- range .Values.pod.alerts }}
+      - alert: {{ .name }}
+        expr: {{ .expr | quote }}
+        for: {{ .for }}
+        labels:
+          severity: {{ .severity }}
+        annotations:
+          summary: {{ .summary | quote }}
+          description: {{ .description | quote }}
+          impact: {{ .impact | quote }}
+          action: {{ .action | quote }}
+    {{- end }}
+{{- end }}
