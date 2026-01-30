@@ -171,4 +171,8 @@ alertmanager:
           - slack-webhook-url: /etc/alertmanager/secrets/slack-api-url
             channel: "#alerts"
             send_resolved: true
-            
+            title: "{{ .CommonAnnotations.summary }}"
+            text: |
+              *Severity:* {{ .CommonLabels.severity }}
+              *Impact:* {{ .CommonAnnotations.impact }}
+              *Action:* {{ .CommonAnnotations.action }}
