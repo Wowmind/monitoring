@@ -1,6 +1,4 @@
-{{- if and .Values.prometheusRules (eq .Values.prometheusRules.enabled true) .Values.deployment.enabled }}
-
-apiVersion: monitoring.coreos.com/v1
+{{- if and .Values.alerts.prometheusRules.enabled .Values.alerts.deployment.enabled }}
 kind: PrometheusRule
 metadata:
   name: {{ include "fullname" . }}-deployment-alerts
