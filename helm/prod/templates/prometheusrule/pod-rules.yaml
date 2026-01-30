@@ -1,25 +1,26 @@
-{{- if and .Values.alerts.prometheusRules.enabled .Values.alerts.pod.enabled }}
+{{- if and .Values.prometheusRules.enabled .Values.pod.enabled .Values.pod.alerts }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: {{ include "fullname" . }}-pod-alerts
   namespace: monitoring
   labels:
-    release: prometheus
+    {{ include "commonLabels" . | nindent 4 }}
 spec:
   groups:
-  - name: pod.rules
-    rules:
-    {{- range .Values.pod.alerts }}
-      - alert: {{ .name }}
-        expr: {{ .expr | quote }}
-        for: {{ .for }}
-        labels:
-          severity: {{ .severity }}
-        annotations:
-          summary: {{ .summary | quote }}
-          description: {{ .description | quote }}
-          impact: {{ .impact | quote }}
-          action: {{ .action | quote }}
-    {{- end }}
+    - name: pod.rules
+      rules:
+      {{- range .Values.pod.alerts }}
+        - alert: {{ .name }}
+          expr: {{ .expr | quote }}
+          for: {{ .for }}
+          labels:
+            severity: {{ .severity }}
+          annotations:
+            summary: {{ .summary | quote }}
+            description: {{ .description | quote }}
+            impact: {{ .impact | quote }}
+            action: {{ .action | quote }}
+      {{- end }}
 {{- end }}
+
