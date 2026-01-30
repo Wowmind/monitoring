@@ -11,7 +11,7 @@ spec:
   groups:
   - name: monitoring.rules
     rules:
-    {{- range .Values.monitoring.alerts }}
+     {{- range .Values.prometheusRules.monitoring.alerts }}
       - alert: {{ .name }}
         expr: {{ .expr | quote }}
         for: {{ .for }}

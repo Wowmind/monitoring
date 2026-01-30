@@ -10,7 +10,7 @@ spec:
   groups:
   - name: node.rules
     rules:
-    {{- range .Values.node.alerts }}
+     {{- range .Values.prometheusRules.node.alerts }}
       - alert: {{ .name }}
         expr: {{ .expr | quote }}
         for: {{ .for }}

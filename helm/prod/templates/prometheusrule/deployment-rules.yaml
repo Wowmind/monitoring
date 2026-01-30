@@ -9,7 +9,7 @@ spec:
   groups:
   - name: deployment.rules
     rules:
-    {{- range .Values.deployment.alerts }}
+     {{- range .Values.prometheusRules.deployment.alerts }}
       - alert: {{ .name }}
         expr: {{ .expr | quote }}
         for: {{ .for }}

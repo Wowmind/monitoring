@@ -10,7 +10,7 @@ spec:
   groups:
     - name: pod.rules
       rules:
-      {{- range .Values.pod.alerts }}
+       {{- range .Values.prometheusRules.pod.alerts }}
         - alert: {{ .name }}
           expr: {{ .expr | quote }}
           for: {{ .for }}
