@@ -1,4 +1,4 @@
-{{- if and .Values.alerts.prometheusRules.enabled .Values.alerts.deployment.enabled }}
+{{- if and .Values.prometheusRules.enabled .Values.prometheusRules.deployment.enabled }}
 kind: PrometheusRule
 metadata:
   name: {{ include "fullname" . }}-deployment-alerts

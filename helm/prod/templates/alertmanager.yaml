@@ -1,0 +1,51 @@
+{{- if .Values.alertmanager.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: Alertmanager
+metadata:
+  name: {{ include "fullname" . }}-alertmanager
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "name" . }}
+    helm.sh/chart: {{ include "chart" . }}
+spec:
+  replicas: 1
+  version: v0.27.0
+  secretName: {{ include "fullname" . }}-alertmanager-secret
+  configSecret: {{ include "fullname" . }}-alertmanager-config
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "fullname" . }}-alertmanager-secret
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+stringData:
+  slack-api-url: "{{ .Values.alertmanager.slackWebhook | default "YOUR_SLACK_WEBHOOK" }}"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "fullname" . }}-alertmanager-config
+  namespace: {{ .Release.Namespace }}
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: {{ .Values.alertmanager.config.global.resolve_timeout | default "5m" }}
+    route:
+      group_by: {{ toYaml .Values.alertmanager.config.route.group_by | nindent 8 }}
+      group_wait: {{ .Values.alertmanager.config.route.group_wait | default "30s" }}
+      group_interval: {{ .Values.alertmanager.config.route.group_interval | default "5m" }}
+      repeat_interval: {{ .Values.alertmanager.config.route.repeat_interval | default "3h" }}
+      receiver: {{ .Values.alertmanager.config.route.receiver | default "slack-notifications" }}
+    receivers:
+      - name: slack-notifications
+        slack_configs:
+          - api_url: /etc/alertmanager/secrets/slack-api-url
+            channel: {{ .Values.alertmanager.config.receivers[0].slack_configs[0].channel | default "#alerts" }}
+            send_resolved: {{ .Values.alertmanager.config.receivers[0].slack_configs[0].send_resolved | default true }}
+            title: "{{ .CommonAnnotations.summary }}"
+            text: |
+              *Severity:* {{ .CommonLabels.severity }}
+              *Impact:* {{ .CommonAnnotations.impact }}
+              *Action:* {{ .CommonAnnotations.action }}
+{{- end }}
