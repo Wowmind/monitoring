@@ -84,3 +84,41 @@ resource "aws_secretsmanager_secret" "alertmanager_slack" {
   }
 }
 
+
+# external-secrets-irsa.tf
+
+# Data source to get your existing EKS cluster
+data "aws_eks_cluster" "cluster" {
+  name = var.cluster_name  
+}
+
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+# Extract OIDC provider from cluster
+locals {
+  oidc_provider_arn = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+  oidc_provider     = replace(local.oidc_provider_arn, "https://", "")
+  account_id        = data.aws_caller_identity.current.account_id
+  region            = data.aws_region.current.name
+}
+
+# IAM Policy for External Secrets to read from Secrets Manager
+resource "aws_iam_policy" "external_secrets" {
+  name        = "ExternalSecretsPolicy"
+  description = "Policy for External Secrets Operator to access AWS Secrets Manager"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = "arn:aws:secretsmanager:${local.region}:${local.account_id}:secret:prod/alertmanager/*"
+      }
+    ]
+  })
+}

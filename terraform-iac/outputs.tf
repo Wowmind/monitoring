@@ -15,3 +15,8 @@ output "alertmanager_slack_secret_arn" {
   value       = aws_secretsmanager_secret.alertmanager_slack.arn
   description = "ARN of the Alertmanager Slack secret"
 }
+
+output "external_secrets_role_arn" {
+  value       = aws_iam_role.external_secrets.arn
+  description = "IAM role ARN for External Secrets Operator"
+}

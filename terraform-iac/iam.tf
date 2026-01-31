@@ -45,3 +45,39 @@ resource "aws_iam_role_policy_attachment" "node_policies" {
   role       = aws_iam_role.eks_node_role.name
   policy_arn = each.value
 }
+
+
+
+# IAM Role for External Secrets Service Account
+resource "aws_iam_role" "external_secrets" {
+  name = "external-secrets-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = "arn:aws:iam::${local.account_id}:oidc-provider/${local.oidc_provider}"
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "${local.oidc_provider}:sub" = "system:serviceaccount:external-secrets-system:external-secrets"
+            "${local.oidc_provider}:aud" = "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
+
+
+
+
+
+
+resource "aws_iam_role_policy_attachment" "external_secrets" {
+  policy_arn = aws_iam_policy.external_secrets.arn
+  role       = aws_iam_role.external_secrets.name
+}
