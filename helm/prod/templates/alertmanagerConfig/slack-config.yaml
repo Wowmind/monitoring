@@ -20,5 +20,4 @@ spec:
         name: alertmanager-slack
       channel: "#alerts"
       sendResolved: true
-      title: '{{ template "slack.default.title" . }}'
-      text: '{{ template "slack.default.text" . }}'
+      
