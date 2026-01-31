@@ -156,7 +156,6 @@ alertmanager:
   enabled: true
   alertmanagerSpec:
     replicas: 1
-    alertmanagerConfigSelectorNilUsesHelmValues: false
     alertmanagerConfigSelector:
       matchLabels:
         alertmanager: main

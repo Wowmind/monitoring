@@ -64,3 +64,23 @@ resource "aws_eks_node_group" "megatron_nodes" {
     aws_iam_role_policy_attachment.node_policies
   ]
 }
+
+# alertmanager-slack-secret.tf
+
+resource "aws_secretsmanager_secret" "alertmanager_slack" {
+  name        = "prod/alertmanager/slack"
+  description = "Slack webhook URL for Alertmanager notifications"
+
+  tags = {
+    Environment = "production"
+    ManagedBy   = "terraform"
+    Purpose     = "alertmanager-slack-integration"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Don't let Terraform change the actual secret value
+    ]
+  }
+}
+

@@ -5,19 +5,20 @@ metadata:
   namespace: monitoring
   labels:
     alertmanager: main
-    monitoring: "true"
 spec:
   route:
     receiver: slack
-    group_by: ["alertname", "namespace"]
-    group_wait: 30s
-    group_interval: 5m
-    repeat_interval: 3h
+    groupBy: ["alertname", "namespace"]
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 3h
   receivers:
   - name: slack
-    slack_configs:
-    - api_url:
-        name: alertmanager-slack
+    slackConfigs:
+    - apiURL:
         key: slack-webhook-url
+        name: alertmanager-slack
       channel: "#alerts"
-      send_resolved: true
+      sendResolved: true
+      title: '{{ template "slack.default.title" . }}'
+      text: '{{ template "slack.default.text" . }}'
