@@ -88,19 +88,23 @@ resource "aws_secretsmanager_secret" "alertmanager_slack" {
 # external-secrets-irsa.tf
 
 # Data source to get your existing EKS cluster
-data "tls_certificate" "eks" {
-  url = aws_eks_cluster.this.identity[0].oidc[0].issuer
+data "aws_eks_cluster" "this" {
+  name = "ludacris-cluster"
+}
+data "aws_eks_cluster_auth" "this" {
+  name = data.aws_eks_cluster.this.name
 }
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 # Extract OIDC provider from cluster
 locals {
-  oidc_issuer_arn = aws_eks_cluster.this.identity[0].oidc[0].issuer
-  oidc_provider     = replace(local.oidc_issuer_arn, "https://", "")
-  account_id        = data.aws_caller_identity.current.account_id
-  region            = data.aws_region.current.region
+  oidc_issuer_arn = data.aws_eks_cluster.this.identity[0].oidc[0].issuer
+  oidc_provider   = replace(local.oidc_issuer_arn, "https://", "")
+  account_id      = data.aws_caller_identity.current.account_id
+  region          = data.aws_region.current.region
 }
+
 
 
 # IAM Role for External Secrets Service Account (IRSA)
