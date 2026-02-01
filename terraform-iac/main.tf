@@ -99,12 +99,11 @@ data "aws_region" "current" {}
 
 # Extract OIDC provider from cluster
 locals {
-  oidc_issuer_arn = data.aws_eks_cluster.this.identity[0].oidc[0].issuer
-  oidc_provider   = replace(local.oidc_issuer_arn, "https://", "")
-  account_id      = data.aws_caller_identity.current.account_id
-  region          = data.aws_region.current.region
+  account_id = data.aws_caller_identity.current.account_id
+  region     = data.aws_region.current.region
+  oidc_provider_id = "E13ACEB7DAF0642A828B4808A257C4AF"
+  oidc_provider_arn = "arn:aws:iam::${local.account_id}:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/${local.oidc_provider_id}"
 }
-
 
 
 # IAM Role for External Secrets Service Account (IRSA)
@@ -117,13 +116,13 @@ resource "aws_iam_role" "external_secrets" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = "arn:aws:iam::${local.account_id}:oidc-provider/${local.oidc_provider}"
+          Federated = local.oidc_provider_arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "${local.oidc_provider}:sub" = "system:serviceaccount:external-secrets-system:external-secrets"
-            "${local.oidc_provider}:aud" = "sts.amazonaws.com"
+            "oidc.eks.us-east-1.amazonaws.com/id/${local.oidc_provider_id}:sub" = "system:serviceaccount:external-secrets-system:external-secrets"
+            "oidc.eks.us-east-1.amazonaws.com/id/${local.oidc_provider_id}:aud" = "sts.amazonaws.com"
           }
         }
       }
