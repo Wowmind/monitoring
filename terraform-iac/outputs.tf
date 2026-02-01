@@ -20,3 +20,8 @@ output "external_secrets_role_arn" {
   value       = aws_iam_role.external_secrets.arn
   description = "IAM role ARN for External Secrets Operator"
 }
+
+output "service_account_name" {
+  value       = kubernetes_service_account_v1.external_secrets.metadata[0].name
+  description = "ServiceAccount name for External Secrets"
+}

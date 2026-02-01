@@ -68,7 +68,7 @@ resource "aws_eks_node_group" "megatron_nodes" {
 # alertmanager-slack-secret.tf
 
 resource "aws_secretsmanager_secret" "alertmanager_slack" {
-  name        = "prod/alertmanager/slack"
+  name        = "prod/alertmanager/slackk"
   description = "Slack webhook URL for Alertmanager notifications"
 
   tags = {
@@ -88,20 +88,57 @@ resource "aws_secretsmanager_secret" "alertmanager_slack" {
 # external-secrets-irsa.tf
 
 # Data source to get your existing EKS cluster
-data "aws_eks_cluster" "cluster" {
-  name = var.cluster_name  
+data "tls_certificate" "eks" {
+  url = aws_eks_cluster.this.identity[0].oidc[0].issuer
 }
-
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 # Extract OIDC provider from cluster
 locals {
-  oidc_provider_arn = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
-  oidc_provider     = replace(local.oidc_provider_arn, "https://", "")
+  oidc_issuer_arn = aws_eks_cluster.this.identity[0].oidc[0].issuer
+  oidc_provider     = replace(local.oidc_issuer_arn, "https://", "")
   account_id        = data.aws_caller_identity.current.account_id
-  region            = data.aws_region.current.name
+  region            = data.aws_region.current.region
 }
+
+
+# IAM Role for External Secrets Service Account (IRSA)
+resource "aws_iam_role" "external_secrets" {
+  name = "external-secrets-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = "arn:aws:iam::${local.account_id}:oidc-provider/${local.oidc_provider}"
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "${local.oidc_provider}:sub" = "system:serviceaccount:external-secrets-system:external-secrets"
+            "${local.oidc_provider}:aud" = "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name      = "external-secrets-role"
+    ManagedBy = "terraform"
+  }
+}
+
+
+resource "aws_iam_role_policy_attachment" "external_secrets" {
+  policy_arn = aws_iam_policy.external_secrets.arn
+  role       = aws_iam_role.external_secrets.name
+}
+
+
 
 # IAM Policy for External Secrets to read from Secrets Manager
 resource "aws_iam_policy" "external_secrets" {
@@ -122,3 +159,4 @@ resource "aws_iam_policy" "external_secrets" {
     ]
   })
 }
+
