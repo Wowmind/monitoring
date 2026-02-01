@@ -102,7 +102,7 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   region     = data.aws_region.current.region
   oidc_provider_id = "E13ACEB7DAF0642A828B4808A257C4AF"
-  oidc_provider_arn = "arn:aws:iam::${local.account_id}:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/${local.oidc_provider_id}"
+  oidc_provider    = "oidc.eks.${local.region}.amazonaws.com/id/${local.oidc_provider_id}"
 }
 
 
@@ -116,7 +116,7 @@ resource "aws_iam_role" "external_secrets" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = local.oidc_provider_arn
+          Federated = "arn:aws:iam::${local.account_id}:oidc-provider/${local.oidc_provider}"
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
